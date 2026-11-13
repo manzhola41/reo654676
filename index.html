@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogicCore — ОГЭ №8 и №13</title>
+<style>
+  :root {
+    --primary: #7c3aed;
+    --secondary: #0e9aa7;
+    --bg: #f8f7fc;
+    --card: #ffffff;
+    --text: #2d2a4a;
+    --border: #e5e0f5;
+    --success: #10b981;
+    --error: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  header { text-align: center; padding: 20px 0 30px; }
+  header h1 {
+    font-size: 2.2em;
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  header p { color: #6b7280; }
+
+  .tabs {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    background: var(--card);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+  }
+  .tab {
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .tab:hover { background: #f3f0fa; color: var(--primary); }
+  .tab.active { background: var(--primary); color: white; }
+
+  .section {
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    display: none;
+  }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section h2 {
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    color: var(--secondary);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+  }
+  .section h2 span { color: var(--primary); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; }
+  @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: #fafafa;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .panel h3 { color: var(--primary); margin-bottom: 16px; font-size: 1.1em; }
+
+  input, select {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.95em;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(14,154,167,0.1); }
+
+  .btn {
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    padding: 10px 16px;
+    transition: all 0.2s;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+  .btn-secondary { background: #f3f0fa; color: var(--primary); border: 1px solid #e5e0f5; }
+  .btn-secondary:hover { background: #ede9fe; }
+  .btn-danger { background: #fef2f2; color: var(--error); border: 1px solid #fecaca; }
+  .btn-danger:hover { background: #fee2e2; }
+
+  .fact-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .solve-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 16px;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    transition: transform 0.2s;
+  }
+  .solve-btn:hover { transform: translateY(-2px); }
+
+  .answer-box {
+    background: linear-gradient(135deg, #ecfdf5, #f0fdfa);
+    border: 2px solid var(--secondary);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .answer-value { font-size: 2.8em; color: var(--secondary); font-weight: bold; font-family: 'Consolas', monospace; }
+
+  .step {
+    background: white;
+    border-left: 4px solid var(--primary);
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .step-number { color: var(--secondary); font-weight: bold; margin-bottom: 6px; }
+  .step-text { color: #4b5563; font-size: 0.95em; }
+  .step-text code {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    color: var(--primary);
+  }
+  .formula {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    margin: 8px 0;
+    background: #f8f7fc;
+    border-radius: 8px;
+    font-family: 'Consolas', monospace;
+    font-size: 1.1em;
+    color: var(--primary);
+    border: 1px dashed var(--border);
+  }
+
+  .error-msg { background: #fef2f2; border: 1px solid #fecaca; color: var(--error); padding: 12px; border-radius: 8px; margin-top: 10px; }
+  .success-msg { background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; padding: 12px; border-radius: 8px; margin-top: 10px; }
+
+  #euler-diagram, #tutor-diagram {
+    width: 100%;
+    height: 360px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-family: 'Consolas', monospace; font-size: 0.95em; margin-top: 10px; }
+  th, td { padding: 10px; text-align: center; border: 1px solid var(--border); }
+  th { background: #f3f0fa; color: var(--primary); font-weight: 600; }
+  td { background: white; }
+  tr.true-row td:last-child { background: #ecfdf5; color: #047857; font-weight: bold; }
+  tr.false-row td:last-child { background: #fef2f2; color: var(--error); font-weight: bold; }
+
+  .tutor-zone-input {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .tutor-zone-input.correct { border-color: var(--success); background: #ecfdf5; }
+  .tutor-zone-input.wrong { border-color: var(--error); background: #fef2f2; }
+
+  /* Статистика на чистом CSS/SVG */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .stats-grid { grid-template-columns: 1fr; } }
+  .stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .stat-value { font-size: 2.2em; font-weight: bold; color: var(--primary); margin: 8px 0; }
+  .stat-label { color: #6b7280; font-size: 0.9em; }
+  
+  .chart-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .bar-chart { display: flex; align-items: flex-end; justify-content: space-around; height: 200px; padding-top: 20px; }
+  .bar {
+    width: 40px;
+    background: linear-gradient(to top, var(--secondary), var(--primary));
+    border-radius: 6px 6px 0 0;
+    transition: height 0.5s ease;
+    position: relative;
+  }
+  .bar-label {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8em;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+  .bar-value {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    color: var(--primary);
+    font-size: 0.9em;
+  }
+
+  .assistant-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    z-index: 100;
+    overflow: hidden;
+  }
+  .assistant-header {
+    background: var(--primary);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .assistant-body { padding: 16px; display: none; }
+  .assistant-body.open { display: block; }
+  .assistant-msg {
+    background: #f3f0fa;
+    padding: 12px;
+    border-radius: 12px;
+    border-top-left-radius: 2px;
+    font-size: 0.9em;
+    color: #4b5563;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ LogicCore</h1>
+  <p>Разработчик: Савишина Кристина, ученица 10 класса</p>
+  <p>Наставник: Горбанева Мария Витальевна, учитель информатики</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="solver">🎯 Решатель №8</button>
+  <button class="tab" data-tab="tutor">📚 Обучение</button>
+  <button class="tab" data-tab="task13">🔢 Задача №13</button>
+  <button class="tab" data-tab="stats">📊 Статистика</button>
+</nav>
+
+<!-- РЕШАТЕЛЬ -->
+<section class="section active" id="tab-solver">
+  <h2>🎯 Решатель задач <span>ОГЭ №8</span></h2>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>📋 Известные данные</h3>
+      <div id="known-facts">
+        <div class="fact-row">
+          <input type="text" class="query-input" value="Сириус & Вега" placeholder="Запрос">
+          <input type="number" class="value-input" value="260" placeholder="Знач.">
+          <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+        </div>
+        <div class="fact-row">
+          <input type="text" class="query-input" value="Вега & (Сириус | Арктур)" placeholder="Запрос">
+          <input type="number" class="value-input" value="467" placeholder="Знач.">
+          <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+        </div>
+        <div class="fact-row">
+          <input type="text" class="query-input" value="Сириус & Вега & Арктур" placeholder="Запрос">
+          <input type="number" class="value-input" value="119" placeholder="Знач.">
+          <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="addFact()" style="width:100%; margin-top:8px;">+ Добавить факт</button>
+      
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+        <label style="color:var(--secondary); font-weight:bold; display:block; margin-bottom:6px;">🔍 Найти:</label>
+        <input type="text" id="target-query" value="Вега & Арктур">
+      </div>
+      
+      <button class="solve-btn" onclick="solveTask()">Решить задачу</button>
+      
+      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="loadPreset(1)">Задача 10959</button>
+        <button class="btn btn-secondary" onclick="loadPreset(2)">Простая (2 круга)</button>
+      </div>
+      <div style="margin-top:12px; font-size:0.85em; color:#6b7280; background:#f9fafb; padding:8px; border-radius:6px;">
+        Операции: <code>&</code> (И), <code>|</code> (ИЛИ), <code>()</code> (скобки).
+      </div>
+    </div>
+
+    <div class="panel" id="solver-result-panel">
+      <h3>📊 Решение</h3>
+      <svg id="euler-diagram" viewBox="0 0 500 360"></svg>
+      <div id="result-content" style="margin-top:16px;"></div>
+      <div id="solver-actions" style="display:none; margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="speakSolution()">🔊 Озвучить</button>
+        <button class="btn btn-secondary" onclick="exportPDF()">📄 Скачать PDF</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ОБУЧЕНИЕ -->
+<section class="section" id="tab-tutor">
+  <h2>📚 Режим <span>обучения</span></h2>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>🎓 Заполни диаграмму</h3>
+      <p style="color:#6b7280; margin-bottom:12px; font-size:0.95em;">
+        Дано: <br>
+        <b>Кот</b> = <span id="tutor-val-a">0</span><br>
+        <b>Пёс</b> = <span id="tutor-val-b">0</span><br>
+        <b>Кот | Пёс</b> = <span id="tutor-val-ab">0</span><br><br>
+        <b>Найти:</b> значения всех 4 зон диаграммы.
+      </p>
+      <div id="tutor-zones"></div>
+      <button class="solve-btn" onclick="checkTutor()">Проверить ответ</button>
+      <button class="btn btn-secondary" onclick="newTutorTask()" style="width:100%; margin-top:8px;">🎲 Новая задача</button>
+      <div id="tutor-feedback" style="margin-top:12px;"></div>
+    </div>
+    <div class="panel">
+      <h3>📊 Диаграмма</h3>
+      <svg id="tutor-diagram" viewBox="0 0 500 360"></svg>
+      <div id="tutor-explanation" style="margin-top:16px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ЗАДАЧА 13 -->
+<section class="section" id="tab-task13">
+  <h2>🔢 Задача <span>ОГЭ №13</span> · Таблицы истинности</h2>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>🧮 Введи формулу</h3>
+      <input type="text" id="formula13" value="(A & B) | (!A & C)" style="font-size:1.1em; margin-bottom:12px;">
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;">
+        <button class="btn btn-secondary" onclick="setFormula13('A & B')">A & B</button>
+        <button class="btn btn-secondary" onclick="setFormula13('A | B')">A | B</button>
+        <button class="btn btn-secondary" onclick="setFormula13('!(A & B)')">!(A & B)</button>
+        <button class="btn btn-secondary" onclick="setFormula13('A -> B')">A → B</button>
+      </div>
+      <button class="solve-btn" onclick="buildTable13()">Построить таблицу</button>
+    </div>
+    <div class="panel">
+      <h3>📊 Таблица истинности</h3>
+      <div id="table13-result"></div>
+    </div>
+  </div>
+</section>
+
+<!-- СТАТИСТИКА -->
+<section class="section" id="tab-stats">
+  <h2>📊 Моя <span>статистика</span></h2>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Решено задач</div>
+      <div class="stat-value" id="stat-solved">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Попыток</div>
+      <div class="stat-value" id="stat-attempts">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Точность</div>
+      <div class="stat-value" id="stat-accuracy">0%</div>
+    </div>
+  </div>
+  <div class="chart-box">
+    <h3 style="color:var(--primary); margin-bottom:16px;">Активность по типам задач</h3>
+    <div class="bar-chart" id="activity-chart">
+      <!-- Генерируется JS -->
+    </div>
+  </div>
+  <div style="text-align:center; margin-top:24px;">
+    <button class="btn btn-danger" onclick="resetStats()">🗑 Сбросить статистику</button>
+  </div>
+</section>
+
+<!-- АССИСТЕНТ -->
+<div class="assistant-widget">
+  <div class="assistant-header" onclick="toggleAssistant()">
+    <span>🤖</span> Ассистент Логик (нажми)
+  </div>
+  <div class="assistant-body" id="assistant-body">
+    <div class="assistant-msg" id="assistant-text">Привет! Я помогу тебе с задачами ОГЭ. Выбери вкладку, и я подскажу, что делать.</div>
+  </div>
+</div>
+
+<script>
+// === НАВИГАЦИЯ ===
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+    updateAssistant(t.dataset.tab);
+    if (t.dataset.tab === 'stats') renderStats();
+  });
+});
+
+function toggleAssistant() {
+  document.getElementById('assistant-body').classList.toggle('open');
+}
+
+function updateAssistant(tab) {
+  const msgs = {
+    solver: "Введи условия задачи слева (например, 'A | B = 180'). Я решу её методом Гаусса и покажу диаграмму.",
+    tutor: "Сайт загадал числа для 4 зон диаграммы. Используй формулы: пересечение = A + B - (A|B), чтобы найти их!",
+    task13: "Введи логическую формулу. Я построю таблицу истинности и покажу вектор функции.",
+    stats: "Здесь твой прогресс. Данные сохраняются в браузере и не пропадут."
+  };
+  document.getElementById('assistant-text').textContent = msgs[tab] || "Чем помочь?";
+  document.getElementById('assistant-body').classList.add('open');
+}
+
+// === СТАТИСТИКА (БЕЗ ВНЕШНИХ БИБЛИОТЕК) ===
+function logStat(type) {
+  let s = JSON.parse(localStorage.getItem('lc_stats') || '{"solved":0, "attempts":0, "types":{}}');
+  s.attempts++;
+  if (type) {
+    s.solved++;
+    s.types[type] = (s.types[type] || 0) + 1;
+  }
+  localStorage.setItem('lc_stats', JSON.stringify(s));
+}
+
+function renderStats() {
+  const s = JSON.parse(localStorage.getItem('lc_stats') || '{"solved":0, "attempts":0, "types":{}}');
+  document.getElementById('stat-solved').textContent = s.solved;
+  document.getElementById('stat-attempts').textContent = s.attempts;
+  const acc = s.attempts > 0 ? Math.round((s.solved / s.attempts) * 100) : 0;
+  document.getElementById('stat-accuracy').textContent = acc + '%';
+
+  const types = s.types;
+  const maxVal = Math.max(1, ...Object.values(types));
+  const chart = document.getElementById('activity-chart');
+  chart.innerHTML = '';
+  
+  const labels = {'Решатель': types['solver']||0, 'Обучение': types['tutor']||0, 'Таблицы': types['table13']||0};
+  for (const [name, val] of Object.entries(labels)) {
+    const height = Math.max(10, (val / maxVal) * 160);
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = height + 'px';
+    bar.innerHTML = `<div class="bar-value">${val}</div><div class="bar-label">${name}</div>`;
+    chart.appendChild(bar);
+  }
+}
+
+function resetStats() {
+  if(confirm('Сбросить?')) { localStorage.removeItem('lc_stats'); renderStats(); }
+}
+
+// === ПАРСЕР (СТАБИЛЬНЫЙ) ===
+class Parser {
+  constructor(expr) { 
+    this.expr = expr.replace(/\s+/g, '').replace(/¬/g,'!').replace(/∧/g,'&').replace(/∨/g,'|'); 
+    this.pos = 0; 
+  }
+  peek() { return this.expr[this.pos]; }
+  eat(ch) { 
+    if (this.expr.substr(this.pos, ch.length) === ch) { this.pos += ch.length; return ch; } 
+    throw new Error("Ожидалось '" + ch + "'"); 
+  }
+  parse() { 
+    const r = this.parseOr(); 
+    if (this.pos < this.expr.length) throw new Error("Лишний символ: " + this.expr[this.pos]); 
+    return r; 
+  }
+  parseOr() { 
+    let l = this.parseAnd(); 
+    while (this.peek() === '|') { this.eat('|'); l = { type: 'or', left: l, right: this.parseAnd() }; } 
+    return l; 
+  }
+  parseAnd() { 
+    let l = this.parseNot(); 
+    while (this.peek() === '&') { this.eat('&'); l = { type: 'and', left: l, right: this.parseNot() }; } 
+    return l; 
+  }
+  parseNot() { 
+    if (this.peek() === '!') { this.eat('!'); return { type: 'not', arg: this.parseNot() }; } 
+    return this.parseAtom(); 
+  }
+  parseAtom() {
+    if (this.peek() === '(') { this.eat('('); const e = this.parseOr(); this.eat(')'); return e; }
+    const m = /^[A-Za-zА-Яа-яЁё]+/.exec(this.expr.substr(this.pos));
+    if (m) { this.pos += m[0].length; return { type: 'var', name: m[0] }; }
+    throw new Error("Неожиданный символ: " + this.peek());
+  }
+}
+
+function getVars(node, s = new Set()) {
+  if (node.type === 'var') s.add(node.name);
+  else if (node.type === 'not') getVars(node.arg, s);
+  else { getVars(node.left, s); getVars(node.right, s); }
+  return s;
+}
+
+function evalExpr(node, env) {
+  switch (node.type) {
+    case 'var': return env[node.name] ? 1 : 0;
+    case 'not': return evalExpr(node.arg, env) ? 0 : 1;
+    case 'and': return evalExpr(node.left, env) & evalExpr(node.right, env);
+    case 'or':  return evalExpr(node.left, env) | evalExpr(node.right, env);
+  }
+}
+
+// === МЕТОД ГАУССА ===
+function rref(M, n) {
+  let r = 0; const pivots = [];
+  for (let c = 0; c < n && r < M.length; c++) {
+    let p = -1;
+    for (let i = r; i < M.length; i++) if (Math.abs(M[i][c]) > 1e-9) { p = i; break; }
+    if (p === -1) continue;
+    [M[r], M[p]] = [M[p], M[r]];
+    const pv = M[r][c];
+    for (let j = 0; j <= n; j++) M[r][j] /= pv;
+    for (let i = 0; i < M.length; i++) {
+      if (i !== r && Math.abs(M[i][c]) > 1e-9) {
+        const f = M[i][c];
+        for (let j = 0; j <= n; j++) M[i][j] -= f * M[r][j];
+      }
+    }
+    pivots.push(c); r++;
+  }
+  return { pivots, rows: M };
+}
+
+// === РЕНДЕР ДИАГРАММЫ ===
+function renderDiagram(svgId, vars, x, targetZones) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+  const n = vars.length;
+  
+  // Рамка
+  const rect = document.createElementNS(NS, 'rect');
+  rect.setAttribute('x', 10); rect.setAttribute('y', 10);
+  rect.setAttribute('width', 480); rect.setAttribute('height', 340);
+  rect.setAttribute('rx', 12); rect.setAttribute('fill', '#ffffff');
+  rect.setAttribute('stroke', '#e5e0f5'); svg.appendChild(rect);
+
+  // Круги (только для 2 или 3 переменных)
+  const circles = n === 2 
+    ? [{x:200, y:170, r:100, c:'#7c3aed'}, {x:300, y:170, r:100, c:'#0e9aa7'}]
+    : [{x:250, y:140, r:100, c:'#7c3aed'}, {x:180, y:230, r:100, c:'#0e9aa7'}, {x:320, y:230, r:100, c:'#f59e0b'}];
+
+  circles.forEach((circ, i) => {
+    if (i >= n) return;
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', circ.x); c.setAttribute('cy', circ.y); c.setAttribute('r', circ.r);
+    c.setAttribute('fill', circ.c + '20'); c.setAttribute('stroke', circ.c); c.setAttribute('stroke-width', 3);
+    svg.appendChild(c);
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', circ.x); t.setAttribute('y', circ.y - circ.r + 20);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', circ.c);
+    t.setAttribute('font-size', '18'); t.setAttribute('font-weight', 'bold');
+    t.textContent = vars[i]; svg.appendChild(t);
+  });
+
+  // Зоны (упрощенно для 2 переменных, так как обучение только на 2)
+  if (n === 2) {
+    const zones = [
+      {x: 140, y: 170, i: 1}, // Только A
+      {x: 360, y: 170, i: 2}, // Только B
+      {x: 250, y: 170, i: 3}, // A & B
+      {x: 60, y: 60, i: 0}    // Вне
+    ];
+    zones.forEach(z => {
+      if (x[z.i] === undefined || x[z.i] === null) return;
+      const isT = targetZones.includes(z.i);
+      const g = document.createElementNS(NS, 'g');
+      g.innerHTML = `<title>Зона ${z.i}: ${Math.round(x[z.i])}${isT ? ' (Искомая)' : ''}</title>`;
+      
+      if (isT) {
+        const hl = document.createElementNS(NS, 'circle');
+        hl.setAttribute('cx', z.x); hl.setAttribute('cy', z.y); hl.setAttribute('r', 28);
+        hl.setAttribute('fill', 'rgba(14,154,167,0.15)'); hl.setAttribute('stroke', '#0e9aa7');
+        hl.setAttribute('stroke-width', 3); hl.setAttribute('stroke-dasharray', '5,4');
+        g.appendChild(hl);
+      }
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', z.x); t.setAttribute('y', z.y + 6);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('fill', isT ? '#0e9aa7' : '#4b5563');
+      t.setAttribute('font-size', isT ? '20' : '16'); t.setAttribute('font-weight', 'bold');
+      t.setAttribute('font-family', 'Consolas, monospace');
+      t.textContent = Math.round(x[z.i]); 
+      g.appendChild(t);
+      svg.appendChild(g);
+    });
+  } else {
+    // Для 3 переменных просто покажем текст в центре, что решено
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', 250); t.setAttribute('y', 180);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('fill', '#0e9aa7');
+    t.setAttribute('font-size', '24'); t.setAttribute('font-weight', 'bold');
+    t.textContent = "Решено для 3 переменных";
+    svg.appendChild(t);
+  }
+}
+
+// === РЕШАТЕЛЬ ===
+function addFact() {
+  const row = document.createElement('div');
+  row.className = 'fact-row';
+  row.innerHTML = `<input type="text" class="query-input" placeholder="Запрос (напр. A | B)">
+    <input type="number" class="value-input" placeholder="Знач.">
+    <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('known-facts').appendChild(row);
+}
+
+function loadPreset(n) {
+  const facts = n === 1 
+    ? [{q:'Сириус & Вега',v:260},{q:'Вега & (Сириус | Арктур)',v:467},{q:'Сириус & Вега & Арктур',v:119}]
+    : [{q:'Угол | Прямая',v:180},{q:'Угол',v:60},{q:'Прямая',v:140}];
+  const target = n === 1 ? 'Вега & Арктур' : 'Угол & Прямая';
+  
+  document.getElementById('known-facts').innerHTML = '';
+  facts.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'fact-row';
+    row.innerHTML = `<input type="text" class="query-input" value="${f.q}">
+      <input type="number" class="value-input" value="${f.v}">
+      <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>`;
+    document.getElementById('known-facts').appendChild(row);
+  });
+  document.getElementById('target-query').value = target;
+  solveTask();
+}
+
+let lastSolutionText = '';
+
+function solveTask() {
+  const facts = [];
+  document.querySelectorAll('#known-facts .fact-row').forEach(row => {
+    const q = row.querySelector('.query-input').value.trim();
+    const v = parseFloat(row.querySelector('.value-input').value);
+    if (q && !isNaN(v)) {
+      try { const ast = new Parser(q).parse(); facts.push({ q, v, ast }); }
+      catch (e) { return showError('Ошибка в запросе "' + q + '": ' + e.message); }
+    }
+  });
+  
+  const targetQ = document.getElementById('target-query').value.trim();
+  if (!targetQ) return showError('Введите целевой запрос');
+  let targetAst;
+  try { targetAst = new Parser(targetQ).parse(); }
+  catch (e) { return showError('Ошибка в целевом запросе: ' + e.message); }
+
+  const allVars = new Set();
+  facts.forEach(f => getVars(f.ast).forEach(v => allVars.add(v)));
+  getVars(targetAst).forEach(v => allVars.add(v));
+  const vars = [...allVars].sort();
+  
+  if (vars.length === 0) return showError('Не найдено переменных');
+  if (vars.length > 3) return showError('Максимум 3 переменных');
+
+  const n = 1 << vars.length;
+  const zoneEnv = [];
+  for (let i = 0; i < n; i++) {
+    const env = {};
+    vars.forEach((v, k) => env[v] = (i >> (vars.length - 1 - k)) & 1);
+    zoneEnv.push(env);
+  }
+  
+  const zonesOf = ast => zoneEnv.map((env, i) => evalExpr(ast, env) ? i : -1).filter(i => i >= 0);
+
+  const A = [], b = [], eqZones = [];
+  facts.forEach(f => {
+    const z = zonesOf(f.ast);
+    const row = new Array(n).fill(0);
+    z.forEach(i => row[i] = 1);
+    A.push(row); b.push(f.v); eqZones.push(z);
+  });
+  
+  const c = new Array(n).fill(0);
+  const targetZones = zonesOf(targetAst);
+  targetZones.forEach(i => c[i] = 1);
+
+  const M = A.map((row, i) => [...row, b[i]]);
+  const { pivots, rows } = rref(M, n);
+
+  for (const row of rows) {
+    let allZero = true;
+    for (let j = 0; j < n; j++) if (Math.abs(row[j]) > 1e-9) allZero = false;
+    if (allZero && Math.abs(row[n]) > 1e-9) return showError('Данные противоречивы');
+  }
+
+  const x = new Array(n).fill(0);
+  const freeCols = [];
+  for (let j = 0; j < n; j++) if (!pivots.includes(j)) freeCols.push(j);
+  pivots.forEach((col, idx) => { x[col] = rows[idx][n]; });
+
+  for (const j of freeCols) {
+    let v = new Array(n).fill(0);
+    v[j] = 1;
+    pivots.forEach((col, idx) => { v[col] = -rows[idx][j]; });
+    const dot = v.reduce((s, vi, k) => s + vi * c[k], 0);
+    if (Math.abs(dot) > 1e-6) return showError('Недостаточно данных. Добавьте ещё факты.');
+  }
+
+  const answer = Math.round(c.reduce((s, ci, k) => s + ci * x[k], 0) * 1000) / 1000;
+
+  renderDiagram('euler-diagram', vars, x, targetZones);
+  
+  let html = `<div class="answer-box"><div style="color:#6b7280; margin-bottom:4px;">Ответ на запрос «${targetQ}»:</div><div class="answer-value">${answer}</div></div>`;
+  html += `<div class="step"><div class="step-number">Шаг 1. Переменные и зоны</div><div class="step-text">Переменные: <code>${vars.join(', ')}</code>. Диаграмма разбита на <code>${n}</code> зон (x₁...x${n}).</div></div>`;
+  html += `<div class="step"><div class="step-number">Шаг 2. Уравнения</div><div class="step-text">`;
+  facts.forEach((f, idx) => {
+    html += `<code>${f.q}</code> = ${f.v} &nbsp;→&nbsp; ${eqZones[idx].map(i => 'x' + (i + 1)).join(' + ')} = ${f.v}<br>`;
+  });
+  html += `</div></div>`;
+  html += `<div class="step"><div class="step-number">Шаг 3. Решение (метод Гаусса)</div><div class="step-text"><span class="formula">${x.map((v, i) => Math.abs(v) > 1e-9 ? 'x' + (i + 1) + ' = ' + Math.round(v) : '').filter(Boolean).join(';&nbsp; ')}</span></div></div>`;
+  html += `<div class="step"><div class="step-number">Шаг 4. Итог</div><div class="step-text">Целевые зоны: ${targetZones.map(i => 'x' + (i + 1) + '(' + Math.round(x[i]) + ')').join(', ')}.<br><span class="formula">${targetZones.map(i => Math.round(x[i])).join(' + ')} = ${answer}</span></div></div>`;
+  
+  document.getElementById('result-content').innerHTML = html;
+  document.getElementById('solver-actions').style.display = 'flex';
+  
+  lastSolutionText = `Ответ: ${answer}. Значения зон: ${x.map((v,i)=>Math.abs(v)>1e-9?'x'+(i+1)+'равно'+Math.round(v):'').filter(Boolean).join(', ')}.`;
+  logStat('solver');
+}
+
+function showError(msg) {
+  document.getElementById('result-content').innerHTML = `<div class="error-msg">❌ ${msg}</div>`;
+  document.getElementById('solver-actions').style.display = 'none';
+  logStat(null);
+}
+
+function speakSolution() {
+  if (!('speechSynthesis' in window)) return alert('Голос не поддерживается');
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(lastSolutionText);
+  u.lang = 'ru-RU'; u.rate = 1.0;
+  speechSynthesis.speak(u);
+}
+
+async function exportPDF() {
+  if (typeof html2canvas === 'undefined') {
+    return alert('Библиотека PDF не загрузилась. Проверьте интернет или используйте скриншот.');
+  }
+  const el = document.getElementById('solver-result-panel');
+  const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2 });
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const imgData = canvas.toDataURL('image/png');
+  const imgWidth = 190;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+  pdf.save('logiccore.pdf');
+}
+
+// === ОБУЧЕНИЕ (100% РАБОЧЕЕ) ===
+let tutorState = null;
+
+function newTutorTask() {
+  // Генерируем задачу на 2 переменных
+  const x1 = Math.floor(Math.random() * 80) + 20; // Только A
+  const x2 = Math.floor(Math.random() * 80) + 20; // Только B
+  const x3 = Math.floor(Math.random() * 60) + 10; // A & B
+  const x4 = 0; // Вне (для простоты ОГЭ обычно 0 или не учитывается)
+
+  const valA = x1 + x3;
+  const valB = x2 + x3;
+  const valAB = x1 + x2 + x3;
+
+  tutorState = {
+    vars: ['Кот', 'Пёс'],
+    x: [x4, x1, x2, x3], // 0:вне, 1:только A, 2:только B, 3:A&B
+    target: [x1, x2, x3, x4],
+    user: [null, null, null, null]
+  };
+
+  document.getElementById('tutor-val-a').textContent = valA;
+  document.getElementById('tutor-val-b').textContent = valB;
+  document.getElementById('tutor-val-ab').textContent = valAB;
+  
+  renderTutor();
+  document.getElementById('tutor-feedback').innerHTML = '';
+  document.getElementById('tutor-explanation').innerHTML = '';
+}
+
+function renderTutor() {
+  if (!tutorState) return;
+  const { vars, x, user } = tutorState;
+  const names = ['Вне обоих', `Только ${vars[0]}`, `Только ${vars[1]}`, `${vars[0]} & ${vars[1]}`];
+  
+  let html = '';
+  for (let i = 0; i < 4; i++) {
+    const status = user[i] === null ? '' : (user[i] === x[i] ? 'correct' : 'wrong');
+    const icon = user[i] === null ? '⏳' : (user[i] === x[i] ? '✅' : '❌');
+    html += `
+      <div class="tutor-zone-input ${status}">
+        <span style="font-size:0.9em;"><b>${names[i]}</b> (зона ${i+1})</span>
+        <input type="number" value="${user[i] === null ? '' : user[i]}" onchange="updateTutor(${i}, this.value)" placeholder="?">
+        <span>${icon}</span>
+      </div>
+    `;
+  }
+  document.getElementById('tutor-zones').innerHTML = html;
+  
+  // Рисуем диаграмму с текущими введенными данными
+  const displayX = user.map((v, i) => v === null ? 0 : v);
+  renderDiagram('tutor-diagram', vars, displayX, [3]); // Подсвечиваем пересечение как цель
+}
+
+function updateTutor(i, val) {
+  if (!tutorState) return;
+  const v = parseInt(val);
+  tutorState.user[i] = isNaN(v) ? null : v;
+  renderTutor();
+}
+
+function checkTutor() {
+  if (!tutorState) return;
+  const { x, user } = tutorState;
+  let allFilled = true, allCorrect = true;
+  
+  for (let i = 0; i < 4; i++) {
+    if (user[i] === null) allFilled = false;
+    if (user[i] !== x[i]) allCorrect = false;
+  }
+  
+  if (!allFilled) {
+    document.getElementById('tutor-feedback').innerHTML = '<div class="error-msg">⏳ Заполни все 4 поля</div>';
+    return;
+  }
+  
+  if (allCorrect) {
+    document.getElementById('tutor-feedback').innerHTML = '<div class="success-msg">🎉 Всё верно! Ты отлично понял принцип диаграмм Эйлера.</div>';
+    document.getElementById('tutor-explanation').innerHTML = `<div class="step"><div class="step-number">💡 Почему так?</div><div class="step-text">
+      Пересечение (Кот & Пёс) = Кот + Пёс - (Кот | Пёс) = ${x[1]+x[3]} + ${x[2]+x[3]} - ${x[1]+x[2]+x[3]} = <b>${x[3]}</b>.<br>
+      Только Кот = ${x[1]+x[3]} - ${x[3]} = <b>${x[1]}</b>.<br>
+      Только Пёс = ${x[2]+x[3]} - ${x[3]} = <b>${x[2]}</b>.
+    </div></div>`;
+    logStat('tutor');
+  } else {
+    document.getElementById('tutor-feedback').innerHTML = '<div class="error-msg">❌ Есть ошибки. Проверь ячейки с красным фоном. Подсказка: начни с нахождения пересечения!</div>';
+    logStat(null);
+  }
+}
+
+// === ЗАДАЧА 13 ===
+function setFormula13(f) { 
+  document.getElementById('formula13').value = f; 
+  buildTable13(); 
+}
+
+function buildTable13() {
+  const expr = document.getElementById('formula13').value.trim();
+  if (!expr) return;
+  let ast;
+  try { ast = new Parser(expr).parse(); }
+  catch (e) { return document.getElementById('table13-result').innerHTML = `<div class="error-msg">Ошибка: ${e.message}</div>`; }
+
+  const vars = [...getVars(ast)].sort();
+  if (vars.length === 0 || vars.length > 4) return document.getElementById('table13-result').innerHTML = `<div class="error-msg">Нужно от 1 до 4 переменных</div>`;
+
+  const n = vars.length;
+  const rows = 1 << n;
+  let html = '<table><thead><tr>';
+  vars.forEach(v => html += `<th>${v}</th>`);
+  html += '<th>Результат</th></tr></thead><tbody>';
+  
+  const results = [];
+  for (let i = 0; i < rows; i++) {
+    const env = {};
+    vars.forEach((v, k) => env[v] = (i >> (n - 1 - k)) & 1);
+    const val = evalExpr(ast, env);
+    results.push(val);
+    html += `<tr class="${val ? 'true-row' : 'false-row'}">`;
+    vars.forEach(v => html += `<td>${env[v]}</td>`);
+    html += `<td>${val}</td></tr>`;
+  }
+  html += '</tbody></table>';
+  html += `<div style="margin-top:12px; padding:10px; background:#f3f0fa; border-radius:8px; text-align:center;">
+    <span style="color:#6b7280;">Вектор функции:</span> <code style="color:var(--primary); font-size:1.1em; font-weight:bold;">${results.join(', ')}</code>
+  </div>`;
+  
+  document.getElementById('table13-result').innerHTML = html;
+  logStat('table13');
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+window.onload = () => {
+  newTutorTask();
+  renderStats();
+  updateAssistant('solver');
+};
+</script>
+</body>
+</html>
